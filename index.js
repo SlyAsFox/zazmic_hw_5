@@ -32,5 +32,5 @@ app.use((error, req, res, next) => {
 
 const server = http.createServer(app);
 
-server.listen(process.env.PORT || 5000);
-console.log(`Server running at http://127.0.0.1:${process.env.PORT || 5000}/`);
+server.listen(7317);
+console.log(`Server running at http://127.0.0.1:7317/`);
