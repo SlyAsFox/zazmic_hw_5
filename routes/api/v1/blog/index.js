@@ -20,8 +20,8 @@ const blogNodes = [
 
 router.get('/', (req, res) => {
     res.send({
-        "blogNodes": [ ...blogNodes ]
-    })
+        data: [ ...blogNodes ]
+    });
 });
 
 router.get('/:id', (req, res) => {
@@ -32,12 +32,12 @@ router.get('/:id', (req, res) => {
         }
     });
     if(resultNode){
-        res.send(resultNode);
+        res.send({
+            data: resultNode
+        });
     }else{
-        res.status(400);
-        res.send(`don't exist node with id "${req.params.id}"`);
+        throw new Error(`don't exist node with id [${req.params.id}]`);
     }
-
 });
 
 
@@ -50,10 +50,11 @@ router.post('/', (req, res) => {
     });
     if(!isExist){
         blogNodes.push(req.body);
-        res.send( req.body );
+        res.send({
+            data: req.body
+        });
     }else{
-        res.status(400);
-        res.send(`node with id "${req.params.id}" already exists`);
+        throw new Error(`node with id [${req.params.id}] already exists`);
     }
 });
 
@@ -63,12 +64,13 @@ router.put('/:id', (req, res) => {
         if(node.id === req.params.id){
             isExist = true;
             node = req.body;
-            res.send( node );
+            res.send({
+                data: node
+            });
         }
     });
     if(!isExist){
-        res.status(400);
-        res.send(`don't exist node with id "${req.params.id}"`);
+        throw new Error(`don't exist node with id [${req.params.id}]`);
     }
 });
 
@@ -81,10 +83,11 @@ router.delete('/:id', (req, res) => {
         }
     }
     if(deletedNode){
-        res.send(deletedNode);
+        res.send({
+            data: deletedNode
+        });
     }else{
-        res.status(400);
-        res.send(`don't exist node with id "${req.params.id}"`);
+        throw new Error(`don't exist node with id [${req.params.id}]`);
     }
 });
 
