@@ -40,20 +40,25 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-    let isExist = false;
-    userList.forEach((user) => {
-        if(user.id === req.body.id){
-            isExist = true;
-        }
-    });
-    if(!isExist){
-        userList.push( req.body );
-        res.send({
-            data: req.body
+    let id;
+    while(true){
+        id = (Math.random() * 100000).toFixed();
+        let unique = true;
+        userList.forEach((node) => {
+            if(node.id === id){
+                unique = false;
+            }
         });
-    }else{
-        throw new Error(`user with id [${ req.params.id }] already exists`);
+        if(unique) {
+            break;
+        }
     }
+    let newUser = req.body;
+    newUser.id = id;
+    userList.push(req.body);
+    res.send({
+        data: newUser
+    });
 });
 
 router.put('/:id', (req, res) => {
