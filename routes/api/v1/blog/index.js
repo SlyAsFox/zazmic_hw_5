@@ -3,14 +3,14 @@ const router = new Router();
 
 const blogNodes = [
     {
-        id: '1',
+        id: '11111',
         title: 'title to first node',
         content: 'content to node 1',
         author: 'author1',
         publishedAt: 'today'
     },
     {
-        id: '2',
+        id: '22222',
         title: 'title to second node',
         content: 'content to node 2',
         author: 'author2',
@@ -42,20 +42,25 @@ router.get('/:id', (req, res) => {
 
 
 router.post('/', (req, res) => {
-    let isExist = false;
-    blogNodes.forEach((node) => {
-        if(node.id === req.body.id){
-            isExist = true;
-        }
-    });
-    if(!isExist){
-        blogNodes.push(req.body);
-        res.send({
-            data: req.body
+    let id;
+    while(true){
+        id = (Math.random() * 100000).toFixed();
+        let unique = true;
+        blogNodes.forEach((node) => {
+            if(node.id === id){
+                unique = false;
+            }
         });
-    }else{
-        throw new Error(`node with id [${req.params.id}] already exists`);
+        if(unique) {
+            break;
+        }
     }
+    let newNode = req.body;
+    newNode.id = id;
+    blogNodes.push(req.body);
+    res.send({
+        data: newNode
+    });
 });
 
 router.put('/:id', (req, res) => {
