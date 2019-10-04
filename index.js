@@ -17,13 +17,12 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use('/api/v1/blog', blogRoutes);
+app.use('/api/v1/users', usersRoutes);
+
 app.get('*', (req, res) => {
     https.get(process.env.FRONTED_URL, response => response.pipe(res));
 });
-
-
-app.use('/api/v1/blog', blogRoutes);
-app.use('/api/v1/users', usersRoutes);
 
 app.use((error, req, res, next) => {
     res.send({
