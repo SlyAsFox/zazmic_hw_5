@@ -63,12 +63,12 @@ router.post('/', (req, res) => {
 
 router.put('/:id', (req, res) => {
     let isExist = false;
-    userList.forEach((user) => {
+    userList.forEach((user, index) => {
         if(user.id === req.params.id){
             isExist = true;
-            user = req.body;
+            userList[index] = req.body;
             res.send({
-                data: user
+                data: userList[index]
             });
         }
     });
@@ -79,12 +79,12 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
     let deletedUser = null;
-    for(let i = 0; i < userList.length; i++){
-        if(userList[i].id === req.params.id){
-            deletedUser = userList[i];
-            userList.splice(i, 1);
+    userList.forEach((user, index) => {
+        if(user.id === req.params.id){
+            deletedUser = userList[index];
+            userList.splice(index, 1);
         }
-    }
+    });
     if(deletedUser){
         res.send({
             data: deletedUser

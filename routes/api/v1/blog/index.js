@@ -65,12 +65,12 @@ router.post('/', (req, res) => {
 
 router.put('/:id', (req, res) => {
     let isExist = false;
-    blogNodes.forEach((node) => {
+    blogNodes.forEach((node, index) => {
         if(node.id === req.params.id){
             isExist = true;
-            node = req.body;
+            blogNodes[index] = req.body;
             res.send({
-                data: node
+                data: blogNodes[index]
             });
         }
     });
@@ -81,12 +81,12 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
     let deletedNode = null;
-    for(let i = 0; i < blogNodes.length; i++){
-        if(blogNodes[i].id === req.params.id){
-            deletedNode = blogNodes[i];
-            blogNodes.splice(i, 1);
+    blogNodes.forEach((node, index) => {
+        if(node.id === req.params.id){
+            deletedNode = blogNodes[index];
+            blogNodes.splice(index, 1);
         }
-    }
+    });
     if(deletedNode){
         res.send({
             data: deletedNode
