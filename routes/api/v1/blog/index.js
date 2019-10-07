@@ -57,7 +57,7 @@ router.post('/', (req, res) => {
     }
     let newNode = req.body;
     newNode.id = id;
-    blogNodes.push(req.body);
+    blogNodes.unshift(newNode);
     res.send({
         data: newNode
     });

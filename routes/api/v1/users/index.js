@@ -55,7 +55,7 @@ router.post('/', (req, res) => {
     }
     let newUser = req.body;
     newUser.id = id;
-    userList.push(req.body);
+    userList.push(newUser);
     res.send({
         data: newUser
     });
@@ -63,13 +63,14 @@ router.post('/', (req, res) => {
 
 router.put('/:id', (req, res) => {
     let isExist = false;
-    userList.forEach((user, index) => {
+    userList.find((user, index) => {
         if(user.id === req.params.id){
             isExist = true;
             userList[index] = req.body;
             res.send({
                 data: userList[index]
             });
+            return true;
         }
     });
     if(!isExist) {
