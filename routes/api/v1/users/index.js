@@ -1,98 +1,86 @@
 const { Router } = require('express');
 const router = new Router();
+const asyncHandler = require('express-async-handler');
+const { Users, Articles } = require('../../../../models');
 
-const userList = [
-    {
-        "id": "1",
-        "email": "qweqwe111@gmail.com",
-        "firstName": "Name1",
-        "lastName": "LastName1"
-    },
-    {
-        "id": "2",
-        "email": "qweqwe222@gmail.com",
-        "firstName": "Name2",
-        "lastName": "LastName2"
-    }
-];
+router.get('/', asyncHandler(async (req, res) => {
+    const users = await Users.findAll();
 
-
-router.get('/', (req, res) => {
     res.send({
-        data: [ ...userList ]
+        data: users
     });
-});
+}));
 
-router.get('/:id', (req, res) => {
-    let findUser = null;
-    userList.forEach((user) => {
-        if(user.id === req.params.id){
-            findUser = user;
+
+router.get('/:id/blog', asyncHandler(async (req, res) => {
+    const articles = await Articles.findAll({
+        where: {
+            authorId: req.params.id
         }
     });
-    if(findUser){
-        res.send({
-            data: findUser
-        });
-    }else{
-        throw new Error(`don't exist user with id [${req.params.id}]`);
-    }
-});
 
-router.post('/', (req, res) => {
-    let id;
-    while(true){
-        id = (Math.random() * 100000).toFixed();
-        let unique = true;
-        userList.forEach((node) => {
-            if(node.id === id){
-                unique = false;
-            }
-        });
-        if(unique) {
-            break;
-        }
-    }
-    let newUser = req.body;
-    newUser.id = id;
-    userList.push(newUser);
     res.send({
-        data: newUser
+        data: articles
     });
-});
+}));
 
-router.put('/:id', (req, res) => {
-    let isExist = false;
-    userList.find((user, index) => {
-        if(user.id === req.params.id){
-            isExist = true;
-            userList[index] = req.body;
-            res.send({
-                data: userList[index]
-            });
-            return true;
+router.get('/:id', asyncHandler(async (req, res) => {
+    const user = await Users.findOne({
+        where: {
+            id: req.params.id
         }
     });
-    if(!isExist) {
-        throw new Error(`don't exist user with id [${req.params.id}]`);
-    }
-});
 
-router.delete('/:id', (req, res) => {
-    let deletedUser = null;
-    userList.forEach((user, index) => {
-        if(user.id === req.params.id){
-            deletedUser = userList[index];
-            userList.splice(index, 1);
-        }
-    });
-    if(deletedUser){
+    if(user) {
         res.send({
-            data: deletedUser
+            data: user
         });
-    }else{
-        throw new Error(`don't exist user with id [${req.params.id}]`);
     }
-});
+}));
+
+router.post('/', asyncHandler(async (req, res) => {
+    const user = await Users.create({
+       ...req.body,
+       createdAt: new Date(),
+       updatedAt: new Date()
+   });
+
+   res.send( user );
+}));
+
+router.put('/:id', asyncHandler(async (req, res) => {
+    const user = await Users.findOne({
+        where: {
+            id: req.params.id
+        }
+    });
+
+    await user.update( {
+        ...req.body,
+        updatedAt: new Date()
+    });
+
+    res.send({
+        data: user
+    })
+}));
+
+router.delete('/:id', asyncHandler(async (req, res) => {
+    const user = await Users.findOne({
+        where: {
+            id: req.params.id
+        }
+    });
+
+    await Users.destroy({
+        where: {
+            id: req.params.id
+        }
+    });
+
+    res.send({
+        data: user
+    })
+}));
 
 module.exports = router;

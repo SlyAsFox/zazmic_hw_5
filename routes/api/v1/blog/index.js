@@ -1,99 +1,88 @@
 const { Router } = require('express');
 const router = new Router();
+const asyncHandler = require('express-async-handler');
+const { Articles, Users } = require('../../../../models');
 
-const blogNodes = [
-    {
-        id: '11111',
-        title: 'title to first node',
-        content: 'content to node 1',
-        author: 'author1',
-        publishedAt: 'today'
-    },
-    {
-        id: '22222',
-        title: 'title to second node',
-        content: 'content to node 2',
-        author: 'author2',
-        publishedAt: 'today'
-    }
-];
+router.get('/', asyncHandler(async (req, res) => {
+    const articles = await Articles.findAll({
+        include: {
+            model: Users,
+            as: 'author'
+        },
+        order: [
+            ['publishedAt', 'DESC']
+        ]
+    });
 
-router.get('/', (req, res) => {
     res.send({
-        data: [ ...blogNodes ]
+        data: articles
     });
-});
+}));
 
-router.get('/:id', (req, res) => {
-    let resultNode = null;
-    blogNodes.forEach((node) => {
-        if(node.id === req.params.id){
-            resultNode = node;
+router.get('/:id', asyncHandler(async (req, res) => {
+    const article = await Articles.findOne({
+        where: {
+            id: req.params.id
+        },
+        include: {
+            model: Users,
+            as: 'author'
         }
     });
-    if(resultNode){
+
+    if(article){
         res.send({
-            data: resultNode
+            data: article
         });
-    }else{
-        throw new Error(`don't exist node with id [${req.params.id}]`);
     }
-});
+}));
 
-
-router.post('/', (req, res) => {
-    let id;
-    while(true){
-        id = (Math.random() * 100000).toFixed();
-        let unique = true;
-        blogNodes.forEach((node) => {
-            if(node.id === id){
-                unique = false;
-            }
-        });
-        if(unique) {
-            break;
-        }
-    }
-    let newNode = req.body;
-    newNode.id = id;
-    blogNodes.unshift(newNode);
+router.post('/', asyncHandler(async (req, res) => {
+    console.log(req.body);
+    const article = await Articles.create({
+        ...req.body,
+        authorId: +req.body.authorId,
+        createdAt: new Date(),
+        updatedAt: new Date()
+    });
     res.send({
-        data: newNode
+        data: article
     });
-});
+}));
 
-router.put('/:id', (req, res) => {
-    let isExist = false;
-    blogNodes.forEach((node, index) => {
-        if(node.id === req.params.id){
-            isExist = true;
-            blogNodes[index] = req.body;
-            res.send({
-                data: blogNodes[index]
-            });
+router.put('/:id', asyncHandler(async (req, res) => {
+    const article = await Articles.findOne({
+        where: {
+            id: req.params.id
         }
     });
-    if(!isExist){
-        throw new Error(`don't exist node with id [${req.params.id}]`);
-    }
-});
 
-router.delete('/:id', (req, res) => {
-    let deletedNode = null;
-    blogNodes.forEach((node, index) => {
-        if(node.id === req.params.id){
-            deletedNode = blogNodes[index];
-            blogNodes.splice(index, 1);
+    await article.update({
+        ...req.body,
+        updatedAt: new Date
+    });
+
+    res.send({
+        data: article
+    });
+}));
+
+router.delete('/:id', asyncHandler(async (req, res) => {
+    const article = await Articles.findOne({
+        where: {
+            id: req.params.id
         }
     });
-    if(deletedNode){
-        res.send({
-            data: deletedNode
-        });
-    }else{
-        throw new Error(`don't exist node with id [${req.params.id}]`);
-    }
-});
+
+    await Articles.destroy({
+        where: {
+            id: req.params.id
+        }
+    });
+
+    res.send({
+        data: article
+    });
+}));
 
 module.exports = router;

@@ -1,19 +1,23 @@
 {
   "name": "zazmic-hw-5",
   "version": "1.0.0",
-  "description": "",
+  "description": "first project with Node.js - blog",
   "main": "index.js",
   "scripts": {
-    "start": "env-cmd node .",
+    "start": "env-cmd nodemon index",
     "dev": "nodemon index.js",
     "lint": "eslint index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
-    "pm2": "^3.5.1"
+    "express-async-handler": "^1.1.4",
+    "mysql2": "^1.7.0",
+    "pm2": "^3.5.1",
+    "sequelize": "^5.19.4"
   },
   "devDependencies": {
     "@types/express": "^4.17.1",
