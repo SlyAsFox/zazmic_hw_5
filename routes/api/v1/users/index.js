@@ -2,12 +2,32 @@ const { Router } = require('express');
 const router = new Router();
 const asyncHandler = require('express-async-handler');
 const { Users, Articles } = require('../../../../models');
+const sequelize = require('../../../../sequelize');
 
 router.get('/', asyncHandler(async (req, res) => {
-    const users = await Users.findAll();
+    const users = await sequelize.query(
+        `SELECT users.*, COUNT(articles.id) AS articles FROM users LEFT JOIN articles ON articles.author_id=users.id GROUP BY users.id`
+    );
+
+    let data = [];
+
+    for (let i of users[0]){
+        let obj = {};
+
+        obj.id = i.id;
+        obj.email = i.email;
+        obj.password = i.password;
+        obj.articles = i.articles;
+        obj.firstName = i.first_name;
+        obj.lastName = i.last_name;
+        obj.createdAt = i.created_at;
+        obj.updatedAt = i.updated_at;
+
+        data.push(obj);
+    }
 
     res.send({
-        data: users
+        data: data
     });
 }));
 

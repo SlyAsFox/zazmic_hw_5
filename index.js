@@ -1,4 +1,4 @@
-require('dotenv').config();
+//require('dotenv').config();
 
 const http = require('http');
 const express = require('express');
@@ -38,7 +38,7 @@ const server = http.createServer(app);
 sequelize.authenticate()
     .then(() => {
         server.listen(process.env.PORT || 5000);
-        console.log(`Server running at http://127.0.0.1:${process.env.PORT || 5000}/`);
+        console.log(`Server running at http://localhost:${process.env.PORT || 5000}/`);
     })
     .catch(() => {
         console.log('Connection error');
