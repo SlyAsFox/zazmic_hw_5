@@ -11,17 +11,17 @@ router.get('/', asyncHandler(async (req, res) => {
 
     let data = [];
 
-    for (let i of users[0]){
+    for (let user of users[0]){
         let obj = {};
 
-        obj.id = i.id;
-        obj.email = i.email;
-        obj.password = i.password;
-        obj.articles = i.articles;
-        obj.firstName = i.first_name;
-        obj.lastName = i.last_name;
-        obj.createdAt = i.created_at;
-        obj.updatedAt = i.updated_at;
+        obj.id = user.id;
+        obj.email = user.email;
+        obj.password = user.password;
+        obj.articles = user.articles;
+        obj.firstName = user.first_name;
+        obj.lastName = user.last_name;
+        obj.createdAt = user.created_at;
+        obj.updatedAt = user.updated_at;
 
         data.push(obj);
     }
