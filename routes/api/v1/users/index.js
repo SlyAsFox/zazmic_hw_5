@@ -19,42 +19,46 @@ router.get('/', asyncHandler(async (req, res) => {
         let obj = {};
 
         obj.id = user.id;
+        obj.lastName = user.last_name;
+        obj.firstName = user.first_name;
         obj.email = user.email;
         obj.password = user.password;
         obj.articles = user.articles;
-        obj.firstName = user.first_name;
-        obj.lastName = user.last_name;
+        obj.articlesViews = 0;
         obj.createdAt = user.created_at;
         obj.updatedAt = user.updated_at;
 
-        const findViews = async () => {
-            await Database.connect();
-            const session = await mongoose.startSession();
-            session.startTransaction({});
-            try {
-                const opts = { session };
-
-                const articleViews = await ArticleViews.find({
-                    authorId: +user.id,
-                }, null);
-
-                await session.commitTransaction();
-                session.endSession();
-                return articleViews;
-            }catch (error) {
-                await session.abortTransaction();
-                session.endSession();
-                throw error;
-            }
-        };
-
-        findViews.forEach(( articleViews ) => {
-            obj.articlesViews += articleViews.views;
-        });
+        // const findViews = async () => {
+        //     await Database.connect();
+        //     const session = await mongoose.startSession();
+        //     session.startTransaction({});
+        //     try {
+        //         const opts = { session };
+        //
+        //         const articleViews = await ArticleViews.find({
+        //             authorId: +user.id,
+        //         }, null);
+        //
+        //         articleViews.forEach(( articleViews ) => {
+        //             obj.articlesViews += articleViews.views;
+        //         });
+        //
+        //         await session.commitTransaction();
+        //         session.endSession();
+        //         return articleViews;
+        //     }catch (error) {
+        //         await session.abortTransaction();
+        //         session.endSession();
+        //         throw error;
+        //     }
+        // };
+        // findViews().catch((e) => {
+        //     console.log(e);
+        //     process.exit(1);
+        // });
 
         data.push(obj);
     }
-
 
     res.send({
         data: data

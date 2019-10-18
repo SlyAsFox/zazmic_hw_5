@@ -1,23 +1,62 @@
 'use strict';
 
+/**
+ *@typedef {import('sequelize').Sequelize} Sequelize
+ *@typedef {import('sequelize').QueryInterface} QueryInterface
+ */
+
 module.exports = {
-  up: (queryInterface, Sequelize) => {
-    /*
-      Add altering commands here.
-      Return a promise to correctly handle asynchronicity.
+  /**
+   * @param queryInterface
+   * @param Sequelize
+   * @returns {Promise<void>}
+   */
+  up: (queryInterface, Sequelize) => queryInterface.createTable('articles', {
+    id: {
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+      type: Sequelize.INT
+    },
+    title: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    content: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    author_id: {
+      type: Sequelize.INT,
+      references:{
+        model: 'users',
+        key: 'id'
+      },
+      onUpdate: 'cascade',
+      onDelete: 'cascade',
+    },
+    password: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    created_at: {
+      type: Sequelize.DATE,
+      allowNull: false
+    },
+    published_at: {
+      type: Sequelize.DATE,
+      allowNull: false
+    },
+    updated_at: {
+      type: Sequelize.DATE,
+      allowNull: false
+    }
+  }, { logging: console.log }),
 
-      Example:
-      return queryInterface.createTable('users', { id: Sequelize.INTEGER });
-    */
-  },
-
-  down: (queryInterface, Sequelize) => {
-    /*
-      Add reverting commands here.
-      Return a promise to correctly handle asynchronicity.
-
-      Example:
-      return queryInterface.dropTable('users');
-    */
-  }
+  /**
+   * @param queryInterface
+   * @param Sequelize
+   * @returns
+   */
+  down: ( queryInterface ) => queryInterface.dropTable('articles')
 };

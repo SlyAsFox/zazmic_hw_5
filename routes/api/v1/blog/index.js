@@ -35,33 +35,6 @@ router.get('/:id', asyncHandler(async (req, res) => {
     });
 
     if(article){
-        const articleView = async () => {
-            await Database.connect();
-            const session = await mongoose.startSession();
-            session.startTransaction({});
-            try {
-                const opts = { session };
-
-                const articleView = await ArticleViews.updateOne({
-                    articleId: +req.params.id,
-                }, {
-                    $set: {
-                        views: views++
-                    }
-                }, opts);
-
-                await session.commitTransaction();
-                session.endSession();
-                return articleView;
-            }catch (error) {
-                await session.abortTransaction();
-                session.endSession();
-                throw error;
-            }
-        };
-
-        article.views = articleView.views;
-
         res.send({
             data: article
         });
@@ -75,8 +48,9 @@ router.post('/', asyncHandler(async (req, res) => {
         ...req.body,
         authorId: +req.body.authorId,
     });
+    console.log(article);
 
-    const insert = async () => {
+    const create = async () => {
         await Database.connect();
         const session = await mongoose.startSession();
         session.startTransaction({});
@@ -84,8 +58,8 @@ router.post('/', asyncHandler(async (req, res) => {
             const opts = { session };
 
             const articleView = await ArticleViews.create([{
-                articleId: +req.body.articleId,
-                authorId: +req.body.authorId,
+                articleId: +article.id,
+                authorId: +article.authorId,
                 views: 0
             }], opts);
 
@@ -98,6 +72,11 @@ router.post('/', asyncHandler(async (req, res) => {
             throw error;
         }
     };
+
+    create().catch((e) => {
+        console.log(e);
+        process.exit(1);
+    });
 
     res.send({
         data: article
@@ -128,26 +107,7 @@ router.delete('/:id', asyncHandler(async (req, res) => {
     });
     await Articles.destroy(article);
 
-    const deleteDoc = async () => {
-        await Database.connect();
-        const session = await mongoose.startSession();
-        session.startTransaction({});
-        try {
-            const opts = { session };
 
-            const articleView = await ArticleViews.deleteOne({
-                articleId: article.articleId
-            }, opts);
-
-            await session.commitTransaction();
-            session.endSession();
-            return articleView;
-        }catch (error) {
-            await session.abortTransaction();
-            session.endSession();
-            throw error;
-        }
-    };
 
     res.send({
         data: article
