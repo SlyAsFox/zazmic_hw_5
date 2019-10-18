@@ -4,6 +4,10 @@ const asyncHandler = require('express-async-handler');
 const { Users, Articles } = require('../../../../models');
 const sequelize = require('../../../../sequelize');
 
+const mongoose = require('mongoose');
+const Database = require('../../../../database/database');
+const ArticleViews = require('../../../../models_mongo/articlesViews');
+
 router.get('/', asyncHandler(async (req, res) => {
     const users = await sequelize.query(
         `SELECT users.*, COUNT(articles.id) AS articles FROM users LEFT JOIN articles ON articles.author_id=users.id GROUP BY users.id`
@@ -23,8 +27,34 @@ router.get('/', asyncHandler(async (req, res) => {
         obj.createdAt = user.created_at;
         obj.updatedAt = user.updated_at;
 
+        const findViews = async () => {
+            await Database.connect();
+            const session = await mongoose.startSession();
+            session.startTransaction({});
+            try {
+                const opts = { session };
+
+                const articleViews = await ArticleViews.find({
+                    authorId: +user.id,
+                }, null);
+
+                await session.commitTransaction();
+                session.endSession();
+                return articleViews;
+            }catch (error) {
+                await session.abortTransaction();
+                session.endSession();
+                throw error;
+            }
+        };
+
+        findViews.forEach(( articleViews ) => {
+            obj.articlesViews += articleViews.views;
+        });
+
         data.push(obj);
     }
+
 
     res.send({
         data: data

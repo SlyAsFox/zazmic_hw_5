@@ -34,32 +34,34 @@ router.get('/:id', asyncHandler(async (req, res) => {
         }
     });
 
-    const insert = async () => {
-        await Database.connect();
-        const session = await mongoose.startSession();
-        session.startTransaction({});
-        try {
-            const opts = { session };
-
-            const articleView = await ArticleViews.updateOne({
-                articleId: +req.params.id,
-            }, {
-                $set: {
-                    views: views++
-                }
-            }, opts);
-
-            await session.commitTransaction();
-            session.endSession();
-            return articleView;
-        }catch (error) {
-            await session.abortTransaction();
-            session.endSession();
-            throw error;
-        }
-    };
-
     if(article){
+        const articleView = async () => {
+            await Database.connect();
+            const session = await mongoose.startSession();
+            session.startTransaction({});
+            try {
+                const opts = { session };
+
+                const articleView = await ArticleViews.updateOne({
+                    articleId: +req.params.id,
+                }, {
+                    $set: {
+                        views: views++
+                    }
+                }, opts);
+
+                await session.commitTransaction();
+                session.endSession();
+                return articleView;
+            }catch (error) {
+                await session.abortTransaction();
+                session.endSession();
+                throw error;
+            }
+        };
+
+        article.views = articleView.views;
+
         res.send({
             data: article
         });
