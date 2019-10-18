@@ -1,0 +1,11 @@
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+
+const schema = new Schema({
+    articleId: Number,
+    authorId: Number,
+    views: Number
+});
+
+
+module.exports = mongoose.model('articles_views', schema);

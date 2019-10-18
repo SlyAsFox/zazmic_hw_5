@@ -3,6 +3,10 @@ const router = new Router();
 const asyncHandler = require('express-async-handler');
 const { Articles, Users } = require('../../../../models');
 
+const mongoose = require('mongoose');
+const Database = require('../../../../database/database');
+const ArticleViews = require('../../../../models_mongo/articlesViews');
+
 router.get('/', asyncHandler(async (req, res) => {
     const articles = await Articles.findAll({
         include: {
@@ -30,21 +34,69 @@ router.get('/:id', asyncHandler(async (req, res) => {
         }
     });
 
+    const insert = async () => {
+        await Database.connect();
+        const session = await mongoose.startSession();
+        session.startTransaction({});
+        try {
+            const opts = { session };
+
+            const articleView = await ArticleViews.updateOne({
+                articleId: +req.params.id,
+            }, {
+                $set: {
+                    views: views++
+                }
+            }, opts);
+
+            await session.commitTransaction();
+            session.endSession();
+            return articleView;
+        }catch (error) {
+            await session.abortTransaction();
+            session.endSession();
+            throw error;
+        }
+    };
+
     if(article){
         res.send({
             data: article
         });
+    }else{
+        res.status(404);
     }
 }));
 
 router.post('/', asyncHandler(async (req, res) => {
-    console.log(req.body);
     const article = await Articles.create({
         ...req.body,
         authorId: +req.body.authorId,
-        createdAt: new Date(),
-        updatedAt: new Date()
     });
+
+    const insert = async () => {
+        await Database.connect();
+        const session = await mongoose.startSession();
+        session.startTransaction({});
+        try {
+            const opts = { session };
+
+            const articleView = await ArticleViews.create([{
+                articleId: +req.body.articleId,
+                authorId: +req.body.authorId,
+                views: 0
+            }], opts);
+
+            await session.commitTransaction();
+            session.endSession();
+            return articleView;
+        }catch (error) {
+            await session.abortTransaction();
+            session.endSession();
+            throw error;
+        }
+    };
+
     res.send({
         data: article
     });
@@ -58,8 +110,7 @@ router.put('/:id', asyncHandler(async (req, res) => {
     });
 
     await article.update({
-        ...req.body,
-        updatedAt: new Date
+        ...req.body
     });
 
     res.send({
@@ -73,12 +124,28 @@ router.delete('/:id', asyncHandler(async (req, res) => {
             id: req.params.id
         }
     });
+    await Articles.destroy(article);
 
-    await Articles.destroy({
-        where: {
-            id: req.params.id
+    const deleteDoc = async () => {
+        await Database.connect();
+        const session = await mongoose.startSession();
+        session.startTransaction({});
+        try {
+            const opts = { session };
+
+            const articleView = await ArticleViews.deleteOne({
+                articleId: article.articleId
+            }, opts);
+
+            await session.commitTransaction();
+            session.endSession();
+            return articleView;
+        }catch (error) {
+            await session.abortTransaction();
+            session.endSession();
+            throw error;
         }
-    });
+    };
 
     res.send({
         data: article

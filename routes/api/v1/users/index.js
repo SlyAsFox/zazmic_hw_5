@@ -55,6 +55,8 @@ router.get('/:id', asyncHandler(async (req, res) => {
         res.send({
             data: user
         });
+    }else{
+        res.status(404);
     }
 }));
 
