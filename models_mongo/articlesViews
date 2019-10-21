@@ -1,11 +1,33 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
+const logger = require('../logger/logger');
+
 const schema = new Schema({
     articleId: Number,
     authorId: Number,
-    views: Number
+    views: Number,
+    createdAt: Date,
+    editedAt: Date
 });
 
+schema.pre('updateOne', (doc, next) => {
+    doc.editedAt = new Date();
+    next();
+});
 
+schema.pre('create', (doc, next) => {
+    doc.editedAt = new Date();
+    doc.createdAt = new Date();
+    next();
+});
+
+schema.post('updateOne', (doc, next) => {
+    logger.info(`ArticleView with id ${doc.articleId} updated`);
+    next();
+});
+
+schema.post('create', (doc, next) => {
+    logger.info(`ArticleView with id ${doc.articleId} was created`);
+});
 module.exports = mongoose.model('articles_views', schema);
